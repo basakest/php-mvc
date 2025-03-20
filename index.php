@@ -1,4 +1,4 @@
 <?php
 
-require './controller.php';
-(new Controller())->index();
+require 'src/controllers/products.php';
+(new Products())->index();
