@@ -1,6 +1,10 @@
 <?php
 
-require './src/router.php';
+use Framework\Router;
+
+spl_autoload_register(function ($class) {
+    require 'src/' . str_replace('\\', '/', $class) . '.php';
+});
 
 $router = new Router();
 $router->add('/', ['controller' => 'home', 'action' => 'index']);
@@ -14,9 +18,6 @@ if ( ! $items) {
     exit('no matched route');
 }
 extract($items);
-// $items = array_values(array_filter(explode('/', $path)));
-// list($controller, $action) = $items + ['home', 'index'];
 
-require "src/controllers/{$controller}.php";
-$objController = new $controller();
+$objController = new ('App\\Controllers\\' . ucfirst($controller));
 $objController->$action();
