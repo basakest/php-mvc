@@ -7,9 +7,12 @@ spl_autoload_register(function ($class) {
 });
 
 $router = new Router();
+$router->add('/products/{slug:[\w-]+}', ['controller' => 'products', 'action' => 'show']);
+$router->add('/{controller}/{id:\d+}/{action}');
 $router->add('/', ['controller' => 'home', 'action' => 'index']);
 $router->add('/home/index', ['controller' => 'home', 'action' => 'index']);
 $router->add('/products', ['controller' => 'products', 'action' => 'index']);
+$router->add('/{controller}/{action}');
 
 // uri without query string
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
