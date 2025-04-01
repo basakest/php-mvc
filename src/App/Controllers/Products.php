@@ -12,8 +12,13 @@ class Products
         require 'views/products_index.php';
     }
 
-    public function show()
+    public function show(string $slug)
     {
         require 'views/products_show.php';
+    }
+
+    public function showPage(string $title, string $id, string $page)
+    {
+        echo "Title: $title, ID: $id, Page: $page";
     }
 }

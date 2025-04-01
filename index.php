@@ -1,5 +1,6 @@
 <?php
 
+use Framework\Dispatcher;
 use Framework\Router;
 
 spl_autoload_register(function ($class) {
@@ -7,6 +8,8 @@ spl_autoload_register(function ($class) {
 });
 
 $router = new Router();
+$router->add("/admin/{controller}/{action}", ['namespace' => 'Admin']);
+$router->add("{title}/{id:\d+}/{page:\d+}", ['controller' => 'products', 'action' => 'showPage']);
 $router->add('/products/{slug:[\w-]+}', ['controller' => 'products', 'action' => 'show']);
 $router->add('/{controller}/{id:\d+}/{action}');
 $router->add('/', ['controller' => 'home', 'action' => 'index']);
@@ -16,11 +19,6 @@ $router->add('/{controller}/{action}');
 
 // uri without query string
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$items = $router->match($path);
-if ( ! $items) {
-    exit('no matched route');
-}
-extract($items);
 
-$objController = new ('App\\Controllers\\' . ucfirst($controller));
-$objController->$action();
+$dispatcher = new Dispatcher($router);
+$dispatcher->handle($path);
