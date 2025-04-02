@@ -2,10 +2,15 @@
 
 namespace App\Controllers;
 
+use Framework\Viewer;
+
 class Home
 {
-    public function index()
+    public function index(): void
     {
-        require 'views/home_index.php';
+        $viewer = new Viewer();
+        $title = 'Home';
+        echo $viewer->render('shared/header.php', compact('title'));
+        echo $viewer->render('Home/index.php');
     }
 }
