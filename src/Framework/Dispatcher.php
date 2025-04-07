@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use App\Models\Product;
 use ReflectionException;
 use ReflectionMethod;
 
@@ -22,7 +23,7 @@ readonly class Dispatcher
         $action = $this->getActionName($params);
         $namespacedController = $this->getControllerName($params);
         $args = $this->getActionArguments($namespacedController, $action, $params);
-        $objController = new $namespacedController;
+        $objController = $this->getObject($namespacedController);
         /**
          * Arrays and Traversable objects can be unpacked into argument lists when calling functions by using the ... operator.
          * @see https://www.php.net/manual/en/migration56.new-features.php
@@ -68,5 +69,25 @@ readonly class Dispatcher
         $action = ucwords(strtolower($action), '-');
         $action = str_replace('-', '', $action);
         return lcfirst($action);
+    }
+
+    private function getObject(string $className)
+    {
+        $class = new \ReflectionClass($className);
+        $constructor = $class->getConstructor();
+        $dependencies = [];
+        if ($constructor) {
+            foreach ($constructor->getParameters() as $param) {
+                $reflectionType = $param->getType();
+                if ($reflectionType instanceof \ReflectionNamedType) {
+                    // 反射类和 xdebug 一起使用可能会有问题, 在 $name 后设置断点也看不到这个变量的信息
+                    $name = $reflectionType->getName();
+                    $dependencies[] = $this->getObject($name);
+                }
+            }
+            return new $className(...$dependencies);
+        } else {
+            return new $className();
+        }
     }
 }
