@@ -1,10 +1,9 @@
 <?php /* @var $products array */foreach ($products as $product): ?>
     <h2>
-        <?= htmlspecialchars($product['name']); ?>
+        <a href='/products/<?= $product['id'] ?>'>
+            <?= htmlspecialchars($product['name']); ?>
+        </a>
     </h2>
-    <p>
-        <?= htmlspecialchars($product['description']); ?>
-    </p>
 <?php endforeach; ?>
 </body>
 </html>

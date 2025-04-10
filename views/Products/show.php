@@ -1,3 +1,4 @@
-Show an individual product <?= $slug ?> here
+<h1><?= $product['name'] ?></h1>
+<p><?= $product['description'] ?></p>
 </body>
 </html>
