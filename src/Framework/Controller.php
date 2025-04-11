@@ -8,14 +8,14 @@ abstract class Controller
 {
     protected Request $request;
 
-    protected Viewer $viewer;
+    protected TemplateViewerInterface $viewer;
 
     public function setRequest(Request $request): void
     {
         $this->request = $request;
     }
 
-    public function setViewer(Viewer $viewer): void
+    public function setViewer(TemplateViewerInterface $viewer): void
     {
         $this->viewer = $viewer;
     }

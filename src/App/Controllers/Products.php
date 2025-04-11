@@ -5,24 +5,22 @@ namespace App\Controllers;
 use App\Models\Product;
 use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
+use JetBrains\PhpStorm\NoReturn;
 
 class Products extends Controller
 {
     public function __construct(
-        private Product $product,
+        private readonly Product $product,
     )
     {
     }
-    
-
 
     public function index(): void
     {
         $totalNum = $this->product->getTotalNum();
         $products = $this->product->findAll();
         $title = 'Products';
-        echo $this->viewer->render('shared/header.php', compact('title'));
-        echo $this->viewer->render('Products/index.php', compact('products', 'totalNum'));
+        echo $this->viewer->render('Products/index.mvc.php', compact('products', 'totalNum', 'title'));
     }
 
     public function show(string $id): void
@@ -109,7 +107,7 @@ class Products extends Controller
         echo $this->viewer->render('Products/delete.php', compact('product'));
     }
 
-    public function destroy(string $id): void
+    #[NoReturn] public function destroy(string $id): void
     {
         $this->getById($id);
         $this->product->delete($id);

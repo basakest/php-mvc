@@ -30,7 +30,7 @@ readonly class Dispatcher
         /** @var Controller $objController */
         $objController = $this->container->get($namespacedController);
         $objController->setRequest($request);
-        $objController->setViewer($this->container->get(Viewer::class));
+        $objController->setViewer($this->container->get(TemplateViewerInterface::class));
         /**
          * Arrays and Traversable objects can be unpacked into argument lists when calling functions by using the ... operator.
          * @see https://www.php.net/manual/en/migration56.new-features.php
