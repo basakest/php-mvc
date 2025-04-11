@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
-class UserAdmin2
+use Framework\Controller;
+
+class UserAdmin2 extends Controller
 {
     public function getList($a = 23): void
     {

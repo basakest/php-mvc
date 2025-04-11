@@ -3,17 +3,18 @@
 namespace App\Controllers;
 
 use App\Models\Product;
+use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
-use Framework\Viewer;
 
-class Products
+class Products extends Controller
 {
     public function __construct(
-        private readonly Viewer $viewer,
-        private readonly Product $product,
+        private Product $product,
     )
     {
     }
+    
+
 
     public function index(): void
     {
@@ -68,8 +69,8 @@ class Products
     public function create(): void
     {
         $product = [
-            'name'        => $_POST['name'] ?? '',
-            'description' => $_POST['description'] ?? '',
+            'name'        => $this->request->post['name'] ?? '',
+            'description' => $this->request->post['description'] ?? '',
         ];
         $res = $this->product->insert($product);
         if ($res) {
@@ -86,11 +87,10 @@ class Products
     {
         $product = $this->getById($id);
         $data = [
-            'name'        => $_POST['name'] ?? '',
-            'description' => $_POST['description'] ?? '',
+            'name'        => $this->request->post['name'] ?? '',
+            'description' => $this->request->post['description'] ?? '',
         ];
         $res = $this->product->update($id, $data);
-        // $res = false;
         if ($res) {
             header('Location: /products/' . $id);
             exit;
@@ -105,11 +105,6 @@ class Products
     {
         $product = $this->getById($id);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->product->delete($id);
-            header('Location: /products/');
-            exit;
-        }
         echo $this->viewer->render('shared/header.php', ['title' => 'Delete Product']);
         echo $this->viewer->render('Products/delete.php', compact('product'));
     }

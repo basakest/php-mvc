@@ -2,9 +2,11 @@
 
 namespace App\Controllers\Admin;
 
-class User
+use Framework\Controller;
+
+class User extends Controller
 {
-    public function index()
+    public function index(): void
     {
         echo 'UserAdmin::index()';
     }

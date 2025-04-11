@@ -5,6 +5,7 @@ namespace Framework;
 use Framework\Exceptions\PageNotFoundException;
 use ReflectionException;
 use ReflectionMethod;
+use UnexpectedValueException;
 
 readonly class Dispatcher
 {
@@ -15,8 +16,10 @@ readonly class Dispatcher
     {
     }
 
-    public function handle(string $path, string $requestMethod): void
+    public function handle(Request $request): void
     {
+        $path = $this->getPath($request->uri);
+        $requestMethod = $request->method;
         $params = $this->router->match($path, $requestMethod);
         if ( ! $params) {
             throw new PageNotFoundException("no matched route for '$path' with method '$requestMethod'");
@@ -24,7 +27,10 @@ readonly class Dispatcher
         $action = $this->getActionName($params);
         $namespacedController = $this->getControllerName($params);
         $args = $this->getActionArguments($namespacedController, $action, $params);
+        /** @var Controller $objController */
         $objController = $this->container->get($namespacedController);
+        $objController->setRequest($request);
+        $objController->setViewer($this->container->get(Viewer::class));
         /**
          * Arrays and Traversable objects can be unpacked into argument lists when calling functions by using the ... operator.
          * @see https://www.php.net/manual/en/migration56.new-features.php
@@ -70,5 +76,15 @@ readonly class Dispatcher
         $action = ucwords(strtolower($action), '-');
         $action = str_replace('-', '', $action);
         return lcfirst($action);
+    }
+
+    private function getPath(string $uri): string
+    {
+        // uri without query string
+        $path = parse_url($uri, PHP_URL_PATH);
+        if ( ! $path) {
+            throw new UnexpectedValueException("Malformed URI: '{$uri}'");
+        }
+        return $path;
     }
 }
