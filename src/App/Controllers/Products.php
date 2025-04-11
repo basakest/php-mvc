@@ -41,7 +41,7 @@ class Products
         echo $this->viewer->render('shared/header.php', compact('title'));
         echo $this->viewer->render('Products/edit.php', [
             'product'    => $product,
-            'buttonText' => 'Update Product'
+            'buttonText' => 'Update Product',
         ]);
     }
 
@@ -112,5 +112,13 @@ class Products
         }
         echo $this->viewer->render('shared/header.php', ['title' => 'Delete Product']);
         echo $this->viewer->render('Products/delete.php', compact('product'));
+    }
+
+    public function destroy(string $id): void
+    {
+        $this->getById($id);
+        $this->product->delete($id);
+        header('Location: /products/');
+        exit;
     }
 }

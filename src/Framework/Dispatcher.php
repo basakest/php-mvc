@@ -15,11 +15,11 @@ readonly class Dispatcher
     {
     }
 
-    public function handle(string $path): void
+    public function handle(string $path, string $requestMethod): void
     {
-        $params = $this->router->match($path);
+        $params = $this->router->match($path, $requestMethod);
         if ( ! $params) {
-            throw new PageNotFoundException("no matched route for '$path'");
+            throw new PageNotFoundException("no matched route for '$path' with method '$requestMethod'");
         }
         $action = $this->getActionName($params);
         $namespacedController = $this->getControllerName($params);

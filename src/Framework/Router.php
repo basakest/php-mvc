@@ -11,12 +11,15 @@ class Router
         $this->routes[] = compact('path', 'params');
     }
 
-    public function match(string $path): array|false
+    public function match(string $path, string $requestMethod): array|false
     {
         // 如果浏览器地址包括西班牙语等字符, 会被转码
         $path = urldecode($path); // 解码 %2F 等转义字符
         $path = trim($path, '/');
         foreach ($this->routes as $route) {
+            if (isset($route['params']['method']) && $route['params']['method'] !== $requestMethod) {
+                continue;
+            }
             $pattern = $this->getPatternFromRouterPath($route['path']);
             if (preg_match($pattern, $path, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
