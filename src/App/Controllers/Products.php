@@ -19,26 +19,20 @@ class Products extends Controller
     {
         $totalNum = $this->product->getTotalNum();
         $products = $this->product->findAll();
-        $title = 'Products';
-        echo $this->viewer->render('Products/index.mvc.php', compact('products', 'totalNum', 'title'));
+        echo $this->viewer->render('Products/index.mvc.php', compact('products', 'totalNum'));
     }
 
     public function show(string $id): void
     {
         $product = $this->getById($id);
-        $title = 'Product Details';
-        echo $this->viewer->render('shared/header.php', compact('title'));
-        echo $this->viewer->render('Products/show.php', [
-            'product' => $product,
-        ]);
+        echo $this->viewer->render('Products/show.mvc.php', compact('product'));
     }
 
     public function edit(string $id): void
     {
         $product = $this->getById($id);
         $title = 'Edit Product';
-        echo $this->viewer->render('shared/header.php', compact('title'));
-        echo $this->viewer->render('Products/edit.php', [
+        echo $this->viewer->render('Products/edit.mvc.php', [
             'product'    => $product,
             'buttonText' => 'Update Product',
         ]);
@@ -51,8 +45,8 @@ class Products extends Controller
 
     public function new(): void
     {
-        echo $this->viewer->render('shared/header.php', ['title' => 'Create Product']);
-        echo $this->viewer->render('Products/new.php');
+        $buttonText = 'Create Product';
+        echo $this->viewer->render('Products/new.mvc.php', compact('buttonText'));
     }
 
     private function getById(string $id): array
@@ -77,8 +71,8 @@ class Products extends Controller
             exit;
         }
         $errors = $this->product->getErrors();
-        echo $this->viewer->render('shared/header.php', ['title' => 'Create Product']);
-        echo $this->viewer->render('Products/new.php', compact('errors', 'product'));
+        $buttonText = 'Create Product';
+        echo $this->viewer->render('Products/new.mvc.php', compact('errors', 'product', 'buttonText'));
     }
 
     public function update(string $id): void
@@ -103,8 +97,7 @@ class Products extends Controller
     {
         $product = $this->getById($id);
 
-        echo $this->viewer->render('shared/header.php', ['title' => 'Delete Product']);
-        echo $this->viewer->render('Products/delete.php', compact('product'));
+        echo $this->viewer->render('Products/delete.mvc.php', compact('product'));
     }
 
     #[NoReturn] public function destroy(string $id): void
