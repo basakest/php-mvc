@@ -6,7 +6,7 @@
 <p>total num: {{ totalNum }}</p>
 <?php /* @var $products array */foreach ($products as $product): ?>
     <h2>
-        <a href="/products/{{ product['id'] }}">
+        <a href="/products/{{ product['id'] }}/show">
             {{ product['name'] }}
         </a>
     </h2>

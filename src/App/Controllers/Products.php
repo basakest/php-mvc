@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Product;
 use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
+use Framework\Response;
 use JetBrains\PhpStorm\NoReturn;
 
 class Products extends Controller
@@ -15,24 +16,23 @@ class Products extends Controller
     {
     }
 
-    public function index(): void
+    public function index(): Response
     {
         $totalNum = $this->product->getTotalNum();
         $products = $this->product->findAll();
-        echo $this->viewer->render('Products/index.mvc.php', compact('products', 'totalNum'));
+        return $this->view('Products/index.mvc.php', compact('products', 'totalNum'));
     }
 
-    public function show(string $id): void
+    public function show(string $id): Response
     {
         $product = $this->getById($id);
-        echo $this->viewer->render('Products/show.mvc.php', compact('product'));
+        return $this->view('Products/show.mvc.php', compact('product'));
     }
 
-    public function edit(string $id): void
+    public function edit(string $id): Response
     {
         $product = $this->getById($id);
-        $title = 'Edit Product';
-        echo $this->viewer->render('Products/edit.mvc.php', [
+        return $this->view('Products/edit.mvc.php', [
             'product'    => $product,
             'buttonText' => 'Update Product',
         ]);
@@ -43,10 +43,10 @@ class Products extends Controller
         echo "Title: $title, ID: $id, Page: $page";
     }
 
-    public function new(): void
+    public function new(): Response
     {
         $buttonText = 'Create Product';
-        echo $this->viewer->render('Products/new.mvc.php', compact('buttonText'));
+        return $this->view('Products/new.mvc.php', compact('buttonText'));
     }
 
     private function getById(string $id): array
@@ -58,7 +58,7 @@ class Products extends Controller
         return $product;
     }
 
-    public function create(): void
+    public function create(): Response
     {
         $product = [
             'name'        => $this->request->post['name'] ?? '',
@@ -67,15 +67,14 @@ class Products extends Controller
         $res = $this->product->insert($product);
         if ($res) {
             $lastId = $this->product->getLastInsertId();
-            header('Location: /products/' . $lastId);
-            exit;
+            return $this->redirect('/products/' . $lastId);
         }
         $errors = $this->product->getErrors();
         $buttonText = 'Create Product';
-        echo $this->viewer->render('Products/new.mvc.php', compact('errors', 'product', 'buttonText'));
+        return $this->view('Products/new.mvc.php', compact('errors', 'product', 'buttonText'));
     }
 
-    public function update(string $id): void
+    public function update(string $id): Response
     {
         $product = $this->getById($id);
         $data = [
@@ -84,27 +83,24 @@ class Products extends Controller
         ];
         $res = $this->product->update($id, $data);
         if ($res) {
-            header('Location: /products/' . $id);
-            exit;
+            return $this->redirect('/products/' . $id);
         }
         $product = $data + $product;
         $errors = $this->product->getErrors();
-        echo $this->viewer->render('shared/header.php', ['title' => 'Create Product']);
-        echo $this->viewer->render('Products/edit.php', compact('errors', 'product'));
+        return $this->view('Products/edit.mvc.php', compact('errors', 'product'));
     }
 
-    public function delete(string $id): void
+    public function delete(string $id): Response
     {
         $product = $this->getById($id);
 
-        echo $this->viewer->render('Products/delete.mvc.php', compact('product'));
+        return $this->view('Products/delete.mvc.php', compact('product'));
     }
 
-    #[NoReturn] public function destroy(string $id): void
+    public function destroy(string $id): Response
     {
         $this->getById($id);
         $this->product->delete($id);
-        header('Location: /products/');
-        exit;
+        return $this->redirect('/products/');
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Framework;
 
+use App\Middleware\ChangeRequestExample;
+use App\Middleware\ChangeResponseExample;
 use Framework\Exceptions\PageNotFoundException;
 use ReflectionException;
 use ReflectionMethod;
@@ -10,13 +12,14 @@ use UnexpectedValueException;
 readonly class Dispatcher
 {
     public function __construct(
-        private Router $router,
+        private Router    $router,
         private Container $container,
+        private array     $middlewareAliasMap,
     )
     {
     }
 
-    public function handle(Request $request): void
+    public function handle(Request $request): Response
     {
         $path = $this->getPath($request->uri);
         $requestMethod = $request->method;
@@ -29,15 +32,33 @@ readonly class Dispatcher
         $args = $this->getActionArguments($namespacedController, $action, $params);
         /** @var Controller $objController */
         $objController = $this->container->get($namespacedController);
-        $objController->setRequest($request);
         $objController->setViewer($this->container->get(TemplateViewerInterface::class));
-        /**
-         * Arrays and Traversable objects can be unpacked into argument lists when calling functions by using the ... operator.
-         * @see https://www.php.net/manual/en/migration56.new-features.php
-         */
-        // when you run a method from a variable like $action, it's not case sensitive
-        // 不过 mac 默认的文件系统本身就是不区分大小写的, 所以不会出问题
-        $objController->$action(...$args);
+        $objController->setResponse($this->container->get(Response::class));
+        $controllerRequestHandler = new ControllerRequestHandler($objController, $action, $args);
+        $middlewares = $this->getMiddlewares($params);
+        // $middleware = $this->container->get(ChangeResponseExample::class);
+        // $middleware2 = $this->container->get(ChangeRequestExample::class);
+        $middlewareRequestHandler = new MiddlewareRequestHandler(
+            $middlewares,
+            $controllerRequestHandler
+        );
+        return $middlewareRequestHandler->handle($request);
+    }
+
+    private function getMiddlewares(array $params): array
+    {
+        $res = [];
+        if (isset($params['middleware'])) {
+            $middlewares = explode('|', $params['middleware']);
+            foreach ($middlewares as $middleware) {
+                if ( ! isset($this->middlewareAliasMap[$middleware])) {
+                    throw new UnexpectedValueException("Middleware '$middleware' not found in alias map");
+                }
+                $middleware = $this->middlewareAliasMap[$middleware] ?? $middleware;
+                $res[] = $this->container->get($middleware);
+            }
+        }
+        return $res;
     }
 
     private function getActionArguments(string $controller, string $action, array $params): array
